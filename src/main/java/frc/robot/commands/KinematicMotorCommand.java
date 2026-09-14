@@ -8,16 +8,18 @@ import frc.robot.subsystems.KinematicMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
-  @SuppressWarnings("PMD.UnusedPrivateField")
+public class KinematicMotorCommand extends Command {
   private final KinematicMotor m_subsystem;
 
+  private final double targetVelocity;
+
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new KinematicMotorCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(KinematicMotor subsystem) {
+  public KinematicMotorCommand(KinematicMotor subsystem, double v) {
+    targetVelocity = v;
     m_subsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -29,7 +31,10 @@ public class ExampleCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    m_subsystem.setTargetVelocity(targetVelocity);
+    m_subsystem.setTargetAcceleration(0.0);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -38,6 +43,6 @@ public class ExampleCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }
