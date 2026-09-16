@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.RobotController;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,12 +14,13 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 
 public class KinematicMotor extends SubsystemBase {
-  private final double adjustIncrement = 0.05;
-
   private final SparkMax motor;
   private final RelativeEncoder encoder;
+  private final PIDController pid;
+
   private final double wheelRadius; // In Meters
   private final double wheelCircumference; // In Meters
+  private final double gearRatio;
 
   // Note: Using SI units (Meters, Seconds)
   private double velocityCurrent = 0.0;
@@ -34,11 +36,13 @@ public class KinematicMotor extends SubsystemBase {
   // Adjusts itself depending on current motor speed to match the targetVelocity
   private double outputVelocity = 0.0;
 
-  public KinematicMotor(SparkMax motor, double wheelRadius) {
+  public KinematicMotor(SparkMax motor, double wheelRadius, double gearRatio) {
     this.motor = motor;
     this.encoder = this.motor.getEncoder();
     this.wheelRadius = wheelRadius;
     this.wheelCircumference = (2 * Math.PI * wheelRadius);
+    this.pid = new PIDController(0.15, 0.0, 0.01);
+    this.gearRatio = gearRatio; // Represented as to / from
   }
 
   // In S
@@ -48,12 +52,12 @@ public class KinematicMotor extends SubsystemBase {
 
   // In M
   public double getDistance() {
-    return encoder.getPosition() * wheelCircumference;
+    return encoder.getPosition() * wheelCircumference * gearRatio;
   }
 
   // In M/S
   public double getVelocity() {
-    return encoder.getVelocity() * wheelCircumference * (1.0 / 60.0);
+    return (encoder.getVelocity() * wheelCircumference * gearRatio) / 60.0;
   }
 
   // In M/S^2
@@ -101,29 +105,22 @@ public class KinematicMotor extends SubsystemBase {
     velocityPast = velocityCurrent;
     timePast = timeCurrent;
 
-    velocityCurrent = encoder.getVelocity() * wheelCircumference; // In Meters
+    velocityCurrent = getVelocity(); // In Meters / Second
     timeCurrent = RobotController.getTime() / 1000000.0; // In Seconds
 
-    // Update variables, set motor speed
+    // Update variables, set target motor speed
     targetVelocity += targetAcceleration * getTimeDelta();
     
-    // Automatically adjust outputVelocity to match targetVelocity
-    if (getVelocity() != targetVelocity && targetVelocity != 0.0) { // Make sure we don't divide by 0
-      // Dividing by targetVelocity puts it in a -1.0 to 1.0 range
-      outputVelocity += (targetVelocity - getVelocity()) / targetVelocity;
-      //outputVelocity = Math.max(-1.0, Math.min(1.0, outputVelocity)); // Clamp
-    } else if (targetVelocity == 0.0) {
-      outputVelocity = 0;
-    }
-    
-    motor.set(outputVelocity);
+    // Set output velocity
+    outputVelocity = pid.calculate(velocityCurrent, targetVelocity);
 
-    System.out.println(
-      "TV: " + targetVelocity + " " +
-      "TA: " + targetAcceleration + " " +
-      "CV: " + getVelocity() + " " +
-      "OV: " + outputVelocity
-    );
+    outputVelocity = Math.max(-1.0, Math.min(1.0, outputVelocity));
+
+    System.out.println("PID: " + outputVelocity);
+    System.out.println("TV: " + targetVelocity);
+    System.out.println("CV: " + getVelocity());
+
+    motor.set(outputVelocity);
   }
 
   @Override
