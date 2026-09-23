@@ -4,10 +4,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
@@ -16,7 +19,12 @@ import com.revrobotics.spark.SparkMax;
 public class KinematicMotor extends SubsystemBase {
   private final SparkMax motor;
   private final RelativeEncoder encoder;
+
+  private final Optional<DigitalInput> positiveLimit;
+  private final Optional<DigitalInput> negativeLimit;
+
   private final PIDController pid;
+  private final SimpleMotorFeedforward ff;
 
   private final double wheelRadius; // In Meters
   private final double wheelCircumference; // In Meters
@@ -39,9 +47,25 @@ public class KinematicMotor extends SubsystemBase {
   public KinematicMotor(SparkMax motor, double wheelRadius, double gearRatio) {
     this.motor = motor;
     this.encoder = this.motor.getEncoder();
+    this.positiveLimit = Optional.empty();
+    this.negativeLimit = Optional.empty();
     this.wheelRadius = wheelRadius;
     this.wheelCircumference = (2 * Math.PI * wheelRadius);
     this.pid = new PIDController(0.15, 0.0, 0.01);
+    this.ff = new SimpleMotorFeedforward(1.0, 0.5);
+    this.gearRatio = gearRatio; // Represented as to / from
+  }
+
+  public KinematicMotor(SparkMax motor, double wheelRadius, double gearRatio,
+    DigitalInput positiveLimit, DigitalInput negativeLimit) {
+    this.motor = motor;
+    this.encoder = this.motor.getEncoder();
+    this.positiveLimit = (positiveLimit != null) ? Optional.of(positiveLimit) : Optional.empty();
+    this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
+    this.wheelRadius = wheelRadius;
+    this.wheelCircumference = (2 * Math.PI * wheelRadius);
+    this.pid = new PIDController(0.15, 0.0, 0.01);
+    this.ff = new SimpleMotorFeedforward(1.0, 0.5);
     this.gearRatio = gearRatio; // Represented as to / from
   }
 
@@ -52,12 +76,12 @@ public class KinematicMotor extends SubsystemBase {
 
   // In M
   public double getDistance() {
-    return encoder.getPosition() * wheelCircumference * gearRatio;
+    return encoder.getPosition() * gearRatio * wheelCircumference;
   }
 
   // In M/S
   public double getVelocity() {
-    return (encoder.getVelocity() * wheelCircumference * gearRatio) / 60.0;
+    return (encoder.getVelocity() * gearRatio * wheelCircumference) / 60.0;
   }
 
   // In M/S^2
@@ -72,30 +96,6 @@ public class KinematicMotor extends SubsystemBase {
   public void setTargetAcceleration(double a) {
     targetAcceleration = a;
   }
-
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  } 
 
   @Override
   public void periodic() {
@@ -112,15 +112,29 @@ public class KinematicMotor extends SubsystemBase {
     targetVelocity += targetAcceleration * getTimeDelta();
     
     // Set output velocity
-    outputVelocity = pid.calculate(velocityCurrent, targetVelocity);
+    outputVelocity = pid.calculate(velocityCurrent, targetVelocity); // + ff.calculate(targetVelocity);
 
     outputVelocity = Math.max(-1.0, Math.min(1.0, outputVelocity));
 
-    System.out.println("PID: " + outputVelocity);
-    System.out.println("TV: " + targetVelocity);
-    System.out.println("CV: " + getVelocity());
+    System.out.println("OV: " + outputVelocity);
 
-    motor.set(outputVelocity);
+    if (positiveLimit.isPresent()) {
+      // If we hit our positive limit
+      if (!positiveLimit.get().get()) {
+        motor.set(Math.min(0.0, outputVelocity)); // Only allow negative velocities
+      } else {
+        motor.set(outputVelocity);
+      }
+    } else if (negativeLimit.isPresent()) {
+      // If we hit our negative limit
+      if (!negativeLimit.get().get()) {
+        motor.set(Math.max(0.0, outputVelocity)); // Only allow positive velocities
+      } else {
+        motor.set(outputVelocity);
+      }
+    } else {
+      motor.set(outputVelocity);
+    }
   }
 
   @Override
