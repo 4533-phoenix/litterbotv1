@@ -6,7 +6,9 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.KinematicMotorCommand;
+import frc.robot.commands.ServoMotorCommand;
 import frc.robot.subsystems.KinematicMotor;
+import frc.robot.subsystems.ServoMotor;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -26,7 +28,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SparkMax motor;
   private final DigitalInput m_limit;
-  private final KinematicMotor m_exampleSubsystem;
+  //private final KinematicMotor m_exampleSubsystem;
+  private final ServoMotor m_exampleSubsystem;
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -36,7 +39,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     motor = new SparkMax(2, MotorType.kBrushless);
     m_limit = new DigitalInput(5);
-    m_exampleSubsystem = new KinematicMotor(motor, 1.0, 0.1, m_limit, null);
+    m_exampleSubsystem = new ServoMotor(motor, 0.0, m_limit, null);
     configureBindings();
   }
 
@@ -59,10 +62,6 @@ public class RobotContainer {
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
-  public KinematicMotor getKinematicMotorSubsystem() {
-    return m_exampleSubsystem;
-  }
-
     /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -75,6 +74,7 @@ public class RobotContainer {
   } */
 
   public Command getTeleopCommand() {
-    return new KinematicMotorCommand(m_exampleSubsystem, m_driverController.getLeftY());
+    // m_driverController.getLeftY()
+    return new ServoMotorCommand(m_exampleSubsystem, 0.5);
   }
 }

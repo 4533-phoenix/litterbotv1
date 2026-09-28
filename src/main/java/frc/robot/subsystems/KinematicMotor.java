@@ -120,6 +120,8 @@ public class KinematicMotor extends SubsystemBase {
 
     if (positiveLimit.isPresent()) {
       // If we hit our positive limit
+      // (Note that the output is flipped)
+      // (True = no hit, False = hit)
       if (!positiveLimit.get().get()) {
         motor.set(Math.min(0.0, outputVelocity)); // Only allow negative velocities
       } else {
@@ -135,10 +137,5 @@ public class KinematicMotor extends SubsystemBase {
     } else {
       motor.set(outputVelocity);
     }
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
   }
 }
