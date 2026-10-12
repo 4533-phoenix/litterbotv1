@@ -88,9 +88,9 @@ public class ServoMotor extends SubsystemBase {
 
     // Prevent motor from going past a set limit
     if (positiveLimit.isPresent() && !positiveLimit.get().get()) {
-      targetPower = Math.max(Math.min(0.0, targetPower), maxPower);
+      targetPower = Math.max(Math.min(0.0, targetPower), -maxPower);
     } else if (negativeLimit.isPresent() && !negativeLimit.get().get()) {
-      targetPower = Math.min(Math.max(0.0, targetPower), -maxPower);
+      targetPower = Math.min(Math.max(0.0, targetPower), maxPower);
     } else {
       targetPower = Math.min(Math.max(-maxPower, targetPower), maxPower);
     }
