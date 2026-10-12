@@ -14,6 +14,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -30,6 +31,7 @@ public class RobotContainer {
   private final DigitalInput m_limit;
   //private final KinematicMotor m_exampleSubsystem;
   private final ServoMotor m_exampleSubsystem;
+  private final Joystick m_joystick;
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -39,6 +41,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     motor = new SparkMax(2, MotorType.kBrushless);
     m_limit = new DigitalInput(5);
+    m_joystick = new Joystick(0);
     m_exampleSubsystem = new ServoMotor(motor, 0.0, m_limit, null);
     configureBindings();
   }
@@ -75,6 +78,6 @@ public class RobotContainer {
 
   public Command getTeleopCommand() {
     // m_driverController.getLeftY()
-    return new ServoMotorCommand(m_exampleSubsystem, 0.5);
+    return new ServoMotorCommand(m_exampleSubsystem, (m_joystick.getRawAxis(1) + 1.0) / 2.0);
   }
 }
