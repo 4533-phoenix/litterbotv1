@@ -1,0 +1,17 @@
+{
+  "name": "WPILib Codespace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.jdt.ls.java.home": "/usr/local/sdkman/candidates/java/17.0.10-ms",
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-17",
+            "path": "/usr/local/sdkman/candidates/java/17.0.10-ms",
+            "default": true
+          }
+        ]
+      }
+    }
+  }
+}
