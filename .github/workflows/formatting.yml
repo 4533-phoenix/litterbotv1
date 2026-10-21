@@ -27,8 +27,5 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Install toolchain
-        run: ./gradlew installRoboRioToolchain
-
       - name: Check Spotless
         run: ./gradlew spotlessCheck
