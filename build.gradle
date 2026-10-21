@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "com.diffplug.spotless" version "8.3.0"
 }
 
 java {
@@ -104,4 +105,72 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+// Spotless formatting
+project.compileJava.dependsOn(spotlessApply)
+
+spotless {
+    cpp {
+        target project.fileTree(projectDir) {
+            include "src/main/native/c/**/*.c"
+            include "src/main/native/include/**/*.h"
+            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
+        }
+        eclipseCdt("11.3")
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(2)
+        endWithNewline()
+    }
+
+    java {
+        target fileTree(".") {
+            include "**/*.java"
+            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
+        }
+        toggleOffOn()
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
+        }
+        greclipse()
+        leadingTabsToSpaces(2)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    json {
+        target fileTree(".") {
+            include "**/*.json"
+            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
+        }
+        gson().indentWithSpaces(2)
+    }
+
+    python {
+        target fileTree(".") {
+            include "scripts/**/*.py"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(4)
+        endWithNewline()
+    }
+
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
+        }
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(2)
+        endWithNewline()
+    }
 }
