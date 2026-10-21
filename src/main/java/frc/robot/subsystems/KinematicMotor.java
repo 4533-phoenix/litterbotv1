@@ -10,11 +10,17 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+
+/*
+ * KinematicMotor: Defines a subsystem that controls a motor using velocity values.
+ * Operates in the default unit system specified by the motor controller's velocity
+ * conversion factor.
+ */
 
 public class KinematicMotor extends SubsystemBase {
   private final SparkMax motor;
@@ -24,118 +30,74 @@ public class KinematicMotor extends SubsystemBase {
   private final Optional<DigitalInput> negativeLimit;
 
   private final PIDController pid;
-  private final SimpleMotorFeedforward ff;
+  private boolean active;
 
-  private final double wheelRadius; // In Meters
-  private final double wheelCircumference; // In Meters
-  private final double gearRatio;
+  private double targetVelocity = 0.0; // In RPM
+  private double outputPower = 0.0;
 
-  // Note: Using SI units (Meters, Seconds)
-  private double velocityCurrent = 0.0;
-  private double timeCurrent = 0.0;
-  
-  private double velocityPast = 0.0;
-  private double timePast = 0.0;
-
-  private double targetVelocity = 0.0;
-  private double targetAcceleration = 0.0;
-
-
-  // Adjusts itself depending on current motor speed to match the targetVelocity
-  private double outputVelocity = 0.0;
-
-  public KinematicMotor(SparkMax motor, double wheelRadius, double gearRatio) {
+  public KinematicMotor(SparkMax motor, DigitalInput positiveLimit, DigitalInput negativeLimit) {
+    
+    System.out.println(
+      "NOTE: Ensure that the motor's velocity conversion factor is set to the " +
+      "correct value!"
+      );
+    
     this.motor = motor;
-    this.encoder = this.motor.getEncoder();
-    this.positiveLimit = Optional.empty();
-    this.negativeLimit = Optional.empty();
-    this.wheelRadius = wheelRadius;
-    this.wheelCircumference = (2 * Math.PI * wheelRadius);
-    this.pid = new PIDController(0.15, 0.0, 0.01);
-    this.ff = new SimpleMotorFeedforward(1.0, 0.5);
-    this.gearRatio = gearRatio; // Represented as to / from
-  }
 
-  public KinematicMotor(SparkMax motor, double wheelRadius, double gearRatio,
-    DigitalInput positiveLimit, DigitalInput negativeLimit) {
-    this.motor = motor;
+    // A relative encoder is fine for velocity calculations
     this.encoder = this.motor.getEncoder();
+
+    // Define positive and negative limits
+    // The motor will not turn in the positive direction if the positive limit is active.
+    // The motor will not turn in the negative direction if the negative limit is active.
     this.positiveLimit = (positiveLimit != null) ? Optional.of(positiveLimit) : Optional.empty();
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
-    this.wheelRadius = wheelRadius;
-    this.wheelCircumference = (2 * Math.PI * wheelRadius);
-    this.pid = new PIDController(0.15, 0.0, 0.01);
-    this.ff = new SimpleMotorFeedforward(1.0, 0.5);
-    this.gearRatio = gearRatio; // Represented as to / from
+    
+    // Create a PIDController; Controls how the motor ramps up to the correct speed.
+    this.pid = new PIDController(0.0, 0.01, 0.0);
+    this.pid.setTolerance(0.2);
+
+    this.active = false;
   }
 
-  // In S
-  private double getTimeDelta() {
-    return (timeCurrent - timePast);
+  public KinematicMotor(SparkMax motor, double maxRPM) {
+    this(motor, null, null);
   }
 
-  // In M
-  public double getDistance() {
-    return encoder.getPosition() * gearRatio * wheelCircumference;
-  }
+  public double getVelocity() { return encoder.getVelocity(); }
 
-  // In M/S
-  public double getVelocity() {
-    return (encoder.getVelocity() * gearRatio * wheelCircumference) / 60.0;
-  }
+  public double getTargetVelocity() { return targetVelocity; }
 
-  // In M/S^2
-  public double getAcceleration() {
-    return (velocityCurrent - velocityPast) / (timeCurrent - timePast);
-  }
+  public double getOutputPower() { return outputPower; }
 
   public void setTargetVelocity(double v) {
     targetVelocity = v;
   }
 
-  public void setTargetAcceleration(double a) {
-    targetAcceleration = a;
+  public void activate() { this.active = true; }
+  public void deactivate() { 
+    this.active = false; 
+    this.pid.reset(); // Reset PID
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
 
-    // Get data from encoders and sensors
-    velocityPast = velocityCurrent;
-    timePast = timeCurrent;
+    if (active) {
+      // Use the PIDController
+      double output = pid.calculate(encoder.getVelocity(), targetVelocity);
 
-    velocityCurrent = getVelocity(); // In Meters / Second
-    timeCurrent = RobotController.getTime() / 1000000.0; // In Seconds
-
-    // Update variables, set target motor speed
-    targetVelocity += targetAcceleration * getTimeDelta();
+      // Clamp output of PIDController based on which limits are active
+      if (positiveLimit.isPresent() && !positiveLimit.get().get()) {
+        outputPower = Math.max(Math.min(0.0, output), -1.0); // Prevent being positive
+      } else if (negativeLimit.isPresent() && !negativeLimit.get().get()) {
+        outputPower = Math.min(Math.max(0.0, output), 1.0); // Prevent being negative
+      } else {
+        outputPower = Math.min(Math.max(-1.0, output), 1.0); // Clamp within range of -1.0 to 1.0
+      }
     
-    // Set output velocity
-    outputVelocity = pid.calculate(velocityCurrent, targetVelocity); // + ff.calculate(targetVelocity);
-
-    outputVelocity = Math.max(-1.0, Math.min(1.0, outputVelocity));
-
-    System.out.println("OV: " + outputVelocity);
-
-    if (positiveLimit.isPresent()) {
-      // If we hit our positive limit
-      // (Note that the output is flipped)
-      // (True = no hit, False = hit)
-      if (!positiveLimit.get().get()) {
-        motor.set(Math.min(0.0, outputVelocity)); // Only allow negative velocities
-      } else {
-        motor.set(outputVelocity);
-      }
-    } else if (negativeLimit.isPresent()) {
-      // If we hit our negative limit
-      if (!negativeLimit.get().get()) {
-        motor.set(Math.max(0.0, outputVelocity)); // Only allow positive velocities
-      } else {
-        motor.set(outputVelocity);
-      }
-    } else {
-      motor.set(outputVelocity);
+      // Apply the PIDController's output to move the motor
+      motor.setVoltage(outputPower);
     }
   }
 }

@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
- * ServoMotor: Operates a SparkMax motor using position instead of velocity or power
+ * ServoMotor: Defines a subsystem that controls a motor using position values.
+ * Operates in the default unit system specified by the motor controller's position
+ * conversion factor.
  */
 public class ServoMotor extends SubsystemBase {
   private final SparkMax motor;
@@ -26,7 +28,6 @@ public class ServoMotor extends SubsystemBase {
   private final Optional<DigitalInput> negativeLimit;
 
   private final PIDController pid;
-  private final SimpleMotorFeedforward ff;
 
   private double targetPosition;
   private double currentPosition;
@@ -37,20 +38,27 @@ public class ServoMotor extends SubsystemBase {
   /** Creates a new ServoMotor. */
   public ServoMotor(SparkMax motor, double startingPosition,
     DigitalInput positiveLimit, DigitalInput negativeLimit) {
+    
+    System.out.println(
+      "NOTE: Ensure that the motor's positional conversion factor is set to the " +
+      "correct value!"
+      );
+    
     this.motor = motor;
     // We want to use absolute encoder so that we don't have to manually set its
     // initial position every time we run the robot
     this.encoder = this.motor.getAbsoluteEncoder();
     this.currentSensorPosition = this.encoder.getPosition();
     this.currentPosition = this.currentSensorPosition;
-
+    // Define positive and negative limits
+    // The motor will not turn in the positive direction if the positive limit is active.
+    // The motor will not turn in the negative direction if the negative limit is active.
     this.positiveLimit = (positiveLimit != null) ? Optional.of(positiveLimit) : Optional.empty();
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
     
+    // Create a PIDController; Controls how the motor ramps up to the correct speed.
     this.pid = new PIDController(0.15, 0.0, 0.01);
     this.pid.setTolerance(0.05);
-
-    this.ff = new SimpleMotorFeedforward(10, 20);
 
     this.targetPosition = startingPosition;
   }

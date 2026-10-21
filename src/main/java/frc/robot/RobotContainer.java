@@ -10,11 +10,16 @@ import frc.robot.commands.ServoMotorCommand;
 import frc.robot.subsystems.KinematicMotor;
 import frc.robot.subsystems.ServoMotor;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AlternateEncoderConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -30,7 +35,8 @@ public class RobotContainer {
   private final SparkMax motor;
   private final DigitalInput m_limit;
   //private final KinematicMotor m_exampleSubsystem;
-  private final ServoMotor m_exampleSubsystem;
+  private final ServoMotor sm;
+  public final KinematicMotor km;
   private final Joystick m_joystick;
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -40,9 +46,15 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     motor = new SparkMax(2, MotorType.kBrushless);
+
+    System.out.println("NOTE: Ensure the motor is set with the correct conversion factor!");
+    System.out.println("Position: 1");
+    System.out.println("Velocity: 0.16667 (1/60)");
+
     m_limit = new DigitalInput(5);
     m_joystick = new Joystick(0);
-    m_exampleSubsystem = new ServoMotor(motor, 0.0, m_limit, null);
+    sm = null;
+    km = new KinematicMotor(motor, 1100);
     configureBindings();
   }
 
@@ -78,6 +90,6 @@ public class RobotContainer {
 
   public Command getTeleopCommand() {
     // m_driverController.getLeftY()
-    return new ServoMotorCommand(m_exampleSubsystem, (m_joystick.getRawAxis(1) + 1.0) / 2.0);
+    return new KinematicMotorCommand(km, 3.0);
   }
 }

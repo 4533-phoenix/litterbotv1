@@ -5,9 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.KinematicMotorCommand;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -42,12 +42,17 @@ public class Robot extends TimedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
+    SmartDashboard.putNumber("TargetVelocity", m_robotContainer.km.getTargetVelocity());
+    SmartDashboard.putNumber("OutputPower", m_robotContainer.km.getOutputPower());
+    SmartDashboard.putNumber("CurrentVelocity", m_robotContainer.km.getVelocity());
     CommandScheduler.getInstance().run();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.km.deactivate();
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -76,6 +81,7 @@ public class Robot extends TimedRobot {
     /*if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }*/
+    m_robotContainer.km.activate();
   }
 
   /** This function is called periodically during operator control. */
