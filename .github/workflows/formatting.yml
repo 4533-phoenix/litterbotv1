@@ -27,5 +27,8 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
       - name: Check Spotless
         run: ./gradlew spotlessCheck

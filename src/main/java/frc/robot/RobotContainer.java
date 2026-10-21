@@ -4,25 +4,17 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.KinematicMotorCommand;
-import frc.robot.commands.ServoMotorCommand;
-import frc.robot.subsystems.KinematicMotor;
-import frc.robot.subsystems.ServoMotor;
-
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.AlternateEncoderConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.KinematicMotorCommand;
+import frc.robot.subsystems.KinematicMotor;
+import frc.robot.subsystems.ServoMotor;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -34,7 +26,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SparkMax motor;
   private final DigitalInput m_limit;
-  //private final KinematicMotor m_exampleSubsystem;
+  // private final KinematicMotor m_exampleSubsystem;
   private final ServoMotor sm;
   public final KinematicMotor km;
   private final Joystick m_joystick;
@@ -70,14 +62,14 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     /*new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));*/
+    .onTrue(new ExampleCommand(m_exampleSubsystem));*/
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
-    /**
+  /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous

@@ -34,8 +34,11 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Generate Javadoc
-        run: ./gradlew javadoc
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Run Spotless and Generate Javadoc
+        run: ./gradlew spotlessCheck javadoc
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

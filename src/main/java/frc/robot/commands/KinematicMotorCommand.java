@@ -13,7 +13,7 @@ import frc.robot.subsystems.KinematicMotor;
 public class KinematicMotorCommand extends InstantCommand {
   private final KinematicMotor km;
   private final double tv;
-  
+
   public KinematicMotorCommand(KinematicMotor km, double tv) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.km = km;

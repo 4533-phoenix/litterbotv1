@@ -4,17 +4,12 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Optional;
 
 /*
  * KinematicMotor: Defines a subsystem that controls a motor using velocity values.
@@ -36,12 +31,11 @@ public class KinematicMotor extends SubsystemBase {
   private double outputPower = 0.0;
 
   public KinematicMotor(SparkMax motor, DigitalInput positiveLimit, DigitalInput negativeLimit) {
-    
+
     System.out.println(
-      "NOTE: Ensure that the motor's velocity conversion factor is set to the " +
-      "correct value!"
-      );
-    
+        "NOTE: Ensure that the motor's velocity conversion factor is set to the "
+            + "correct value!");
+
     this.motor = motor;
 
     // A relative encoder is fine for velocity calculations
@@ -52,7 +46,7 @@ public class KinematicMotor extends SubsystemBase {
     // The motor will not turn in the negative direction if the negative limit is active.
     this.positiveLimit = (positiveLimit != null) ? Optional.of(positiveLimit) : Optional.empty();
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
-    
+
     // Create a PIDController; Controls how the motor ramps up to the correct speed.
     this.pid = new PIDController(0.0, 0.01, 0.0);
     this.pid.setTolerance(0.2);
@@ -64,19 +58,28 @@ public class KinematicMotor extends SubsystemBase {
     this(motor, null, null);
   }
 
-  public double getVelocity() { return encoder.getVelocity(); }
+  public double getVelocity() {
+    return encoder.getVelocity();
+  }
 
-  public double getTargetVelocity() { return targetVelocity; }
+  public double getTargetVelocity() {
+    return targetVelocity;
+  }
 
-  public double getOutputPower() { return outputPower; }
+  public double getOutputPower() {
+    return outputPower;
+  }
 
   public void setTargetVelocity(double v) {
     targetVelocity = v;
   }
 
-  public void activate() { this.active = true; }
-  public void deactivate() { 
-    this.active = false; 
+  public void activate() {
+    this.active = true;
+  }
+
+  public void deactivate() {
+    this.active = false;
     this.pid.reset(); // Reset PID
   }
 
@@ -95,7 +98,7 @@ public class KinematicMotor extends SubsystemBase {
       } else {
         outputPower = Math.min(Math.max(-1.0, output), 1.0); // Clamp within range of -1.0 to 1.0
       }
-    
+
       // Apply the PIDController's output to move the motor
       motor.setVoltage(outputPower);
     }

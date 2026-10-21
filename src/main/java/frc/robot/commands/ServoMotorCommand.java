@@ -13,6 +13,7 @@ import frc.robot.subsystems.ServoMotor;
 public class ServoMotorCommand extends InstantCommand {
   private final ServoMotor servoMotorSubsystem;
   private final double targetPosition;
+
   public ServoMotorCommand(ServoMotor servo, double position) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.targetPosition = position;

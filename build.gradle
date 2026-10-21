@@ -117,14 +117,14 @@ spotless {
             include "src/main/native/include/**/*.h"
             exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
         }
-        eclipseCdt("11.3")
+        clangFormat()
         trimTrailingWhitespace()
         leadingTabsToSpaces(2)
         endWithNewline()
     }
 
     java {
-        target fileTree(".") {
+        target project.fileTree(projectDir) {
             include "**/*.java"
             exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
         }
@@ -136,26 +136,26 @@ spotless {
     }
 
     groovyGradle {
-        target fileTree(".") {
+        target project.fileTree(projectDir) {
             include "**/*.gradle"
             exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
         }
-        greclipse()
+        // greclipse() removed: It triggers the exact same P2 dependency download failures as eclipseCdt
         leadingTabsToSpaces(2)
         trimTrailingWhitespace()
         endWithNewline()
     }
 
     json {
-        target fileTree(".") {
+        target project.fileTree(projectDir) {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
+            exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**", ".vscode/**"
         }
         gson().indentWithSpaces(2)
     }
 
     python {
-        target fileTree(".") {
+        target project.fileTree(projectDir) {
             include "scripts/**/*.py"
             exclude "**/build/**", "**/build-*/**"
         }
@@ -165,7 +165,7 @@ spotless {
     }
 
     format "misc", {
-        target fileTree(".") {
+        target project.fileTree(projectDir) {
             include "**/*.md", "**/.gitignore"
             exclude "**/build/**", "**/build-*/**", "src/main/deploy/**", "wiki/**"
         }

@@ -4,21 +4,17 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Optional;
 
 /**
- * ServoMotor: Defines a subsystem that controls a motor using position values.
- * Operates in the default unit system specified by the motor controller's position
- * conversion factor.
+ * ServoMotor: Defines a subsystem that controls a motor using position values. Operates in the
+ * default unit system specified by the motor controller's position conversion factor.
  */
 public class ServoMotor extends SubsystemBase {
   private final SparkMax motor;
@@ -36,14 +32,16 @@ public class ServoMotor extends SubsystemBase {
   private double maxPower = 0.05;
 
   /** Creates a new ServoMotor. */
-  public ServoMotor(SparkMax motor, double startingPosition,
-    DigitalInput positiveLimit, DigitalInput negativeLimit) {
-    
+  public ServoMotor(
+      SparkMax motor,
+      double startingPosition,
+      DigitalInput positiveLimit,
+      DigitalInput negativeLimit) {
+
     System.out.println(
-      "NOTE: Ensure that the motor's positional conversion factor is set to the " +
-      "correct value!"
-      );
-    
+        "NOTE: Ensure that the motor's positional conversion factor is set to the "
+            + "correct value!");
+
     this.motor = motor;
     // We want to use absolute encoder so that we don't have to manually set its
     // initial position every time we run the robot
@@ -55,7 +53,7 @@ public class ServoMotor extends SubsystemBase {
     // The motor will not turn in the negative direction if the negative limit is active.
     this.positiveLimit = (positiveLimit != null) ? Optional.of(positiveLimit) : Optional.empty();
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
-    
+
     // Create a PIDController; Controls how the motor ramps up to the correct speed.
     this.pid = new PIDController(0.15, 0.0, 0.01);
     this.pid.setTolerance(0.05);
@@ -84,12 +82,12 @@ public class ServoMotor extends SubsystemBase {
     // This method will be called once per scheduler run
 
     // Adjust velocity based on current error
-    double targetPower = 
-      -pid.calculate(currentPosition, targetPosition)
-    //  + ff.calculate(encoder.getVelocity())
-      ;
+    double targetPower = -pid.calculate(currentPosition, targetPosition)
+        //  + ff.calculate(encoder.getVelocity())
+        ;
 
-    //System.out.println("TARGET: " + targetPosition + " PID_CALC: " + targetPower + " POS: " + getPosition());
+    // System.out.println("TARGET: " + targetPosition + " PID_CALC: " + targetPower + " POS: " +
+    // getPosition());
     SmartDashboard.putNumber("targetPosition", targetPosition);
     SmartDashboard.putNumber("currentPosition", getPosition());
     SmartDashboard.putNumber("targetPower", targetPower);
@@ -105,11 +103,15 @@ public class ServoMotor extends SubsystemBase {
 
     motor.set(targetPower);
 
-    // If the velocity is negative but the change in position is positive (AKA if it wrapped around 0.0)
-    if ((this.encoder.getVelocity() < 0.0) && (encoder.getPosition() - currentSensorPosition > 0.5) ) {
+    // If the velocity is negative but the change in position is positive (AKA if it wrapped around
+    // 0.0)
+    if ((this.encoder.getVelocity() < 0.0)
+        && (encoder.getPosition() - currentSensorPosition > 0.5)) {
       loops--; // decrement loops
-    } else if ((this.encoder.getVelocity() > 0.0) && (encoder.getPosition() - currentSensorPosition < -0.5)) {
-      // If the velocity is positive but the change in position is negative (AKA if it wrapped around 1.0)
+    } else if ((this.encoder.getVelocity() > 0.0)
+        && (encoder.getPosition() - currentSensorPosition < -0.5)) {
+      // If the velocity is positive but the change in position is negative (AKA if it wrapped
+      // around 1.0)
       loops++; // increment loops
     }
 
