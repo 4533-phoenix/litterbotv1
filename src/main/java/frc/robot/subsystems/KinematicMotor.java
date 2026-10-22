@@ -27,7 +27,7 @@ public class KinematicMotor extends SubsystemBase {
   private final PIDController pid;
   private boolean active;
 
-  private double targetVelocity = 0.0; // In RPM
+  private double targetVelocity = 0.0;
   private double outputPower = 0.0;
 
   public KinematicMotor(SparkMax motor, DigitalInput positiveLimit, DigitalInput negativeLimit) {
@@ -48,7 +48,7 @@ public class KinematicMotor extends SubsystemBase {
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
 
     // Create a PIDController; Controls how the motor ramps up to the correct speed.
-    this.pid = new PIDController(0.0, 0.01, 0.0);
+    this.pid = new PIDController(0.0, 0.01, 0.0); // TODO: tune KinematicMotor PID Coefficients
     this.pid.setTolerance(0.2);
 
     this.active = false;

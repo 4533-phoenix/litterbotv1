@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Optional;
 
@@ -24,12 +23,14 @@ public class ServoMotor extends SubsystemBase {
   private final Optional<DigitalInput> negativeLimit;
 
   private final PIDController pid;
+  private boolean active;
 
   private double targetPosition;
+  private double outputPower = 0.0;
+
   private double currentPosition;
   private double currentSensorPosition;
   private int loops = 0; // If the motor wraps around over 1.0, increment. If over 0.0, decrement
-  private double maxPower = 0.05;
 
   /** Creates a new ServoMotor. */
   public ServoMotor(
@@ -55,8 +56,10 @@ public class ServoMotor extends SubsystemBase {
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
 
     // Create a PIDController; Controls how the motor ramps up to the correct speed.
-    this.pid = new PIDController(0.15, 0.0, 0.01);
+    this.pid = new PIDController(0.0, 0.01, 0.0); // TODO: tune ServoMotor PID Coefficients
     this.pid.setTolerance(0.05);
+    
+    this.active = false;
 
     this.targetPosition = startingPosition;
   }
@@ -73,49 +76,49 @@ public class ServoMotor extends SubsystemBase {
     return targetPosition;
   }
 
+  public double getOutputPower() {
+    return outputPower;
+  }
+
   public void setTargetPosition(double targetPosition) {
     this.targetPosition = targetPosition;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-
-    // Adjust velocity based on current error
-    double targetPower = -pid.calculate(currentPosition, targetPosition)
-        //  + ff.calculate(encoder.getVelocity())
-        ;
-
-    // System.out.println("TARGET: " + targetPosition + " PID_CALC: " + targetPower + " POS: " +
-    // getPosition());
-    SmartDashboard.putNumber("targetPosition", targetPosition);
-    SmartDashboard.putNumber("currentPosition", getPosition());
-    SmartDashboard.putNumber("targetPower", targetPower);
-
-    // Prevent motor from going past a set limit
-    if (positiveLimit.isPresent() && !positiveLimit.get().get()) {
-      targetPower = Math.max(Math.min(0.0, targetPower), -maxPower);
-    } else if (negativeLimit.isPresent() && !negativeLimit.get().get()) {
-      targetPower = Math.min(Math.max(0.0, targetPower), maxPower);
-    } else {
-      targetPower = Math.min(Math.max(-maxPower, targetPower), maxPower);
-    }
-
-    motor.set(targetPower);
+    // Since an absolute encoder only measures in a range of 0.0 to 1.0, we can't get multiple rotations
+    // from a direct sensor output. We have to do extra stuff in order to account for multiple rotations.
+    // Doing this prevents overshooting behavior.
 
     // If the velocity is negative but the change in position is positive (AKA if it wrapped around
     // 0.0)
-    if ((this.encoder.getVelocity() < 0.0)
-        && (encoder.getPosition() - currentSensorPosition > 0.5)) {
+    if ((this.encoder.getVelocity() < 0.0) && (encoder.getPosition() - currentSensorPosition > 0.5)) {
       loops--; // decrement loops
-    } else if ((this.encoder.getVelocity() > 0.0)
-        && (encoder.getPosition() - currentSensorPosition < -0.5)) {
+    } else if ((this.encoder.getVelocity() > 0.0) && (encoder.getPosition() - currentSensorPosition < -0.5)) {
       // If the velocity is positive but the change in position is negative (AKA if it wrapped
       // around 1.0)
       loops++; // increment loops
     }
 
+    // Update measured and calculated position
     currentSensorPosition = encoder.getPosition();
     currentPosition = currentSensorPosition + loops;
-  }
+
+    if (active) {
+      // Adjust velocity based on current error
+      double output = -pid.calculate(currentPosition, targetPosition);
+
+      // Prevent motor from going past a set limit
+      if (positiveLimit.isPresent() && !positiveLimit.get().get()) {
+        outputPower = Math.max(Math.min(0.0, output), -1.0);
+      } else if (negativeLimit.isPresent() && !negativeLimit.get().get()) {
+        outputPower = Math.min(Math.max(0.0, output), 1.0);
+      } else {
+        outputPower = Math.min(Math.max(-1.0, output), 1.0);
+      }
+
+      // Apply calculated motor power
+      motor.set(outputPower);
+    }
+  }    
 }
