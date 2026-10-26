@@ -15,6 +15,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.KinematicMotorCommand;
 import frc.robot.subsystems.KinematicMotor;
 import frc.robot.subsystems.ServoMotor;
+import frc.robot.subsystems.SparkMaxKinematicMotor;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,14 +40,10 @@ public class RobotContainer {
     // Configure the trigger bindings
     motor = new SparkMax(2, MotorType.kBrushless);
 
-    System.out.println("NOTE: Ensure the motor is set with the correct conversion factor!");
-    System.out.println("Position: 1");
-    System.out.println("Velocity: 0.16667 (1/60)");
-
     m_limit = new DigitalInput(5);
     m_joystick = new Joystick(0);
     sm = null;
-    km = new KinematicMotor(motor, 1100);
+    km = new SparkMaxKinematicMotor(motor);
     configureBindings();
   }
 
@@ -82,6 +79,6 @@ public class RobotContainer {
 
   public Command getTeleopCommand() {
     // m_driverController.getLeftY()
-    return new KinematicMotorCommand(km, 3.0);
+    return new KinematicMotorCommand(km, m_joystick.getRawAxis(1) * 15.0);
   }
 }
