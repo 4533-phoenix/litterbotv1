@@ -29,6 +29,8 @@
     null
   ],
   "java.test.defaultConfig": "WPIlibUnitTests",
+  "spotlessGradle.format.enable": true,
+  "spotlessGradle.diagnostics.enable": false,
   "java.import.gradle.annotationProcessing.enabled": false,
   "java.completion.favoriteStaticMembers": [
     "org.junit.Assert.*",
@@ -61,5 +63,12 @@
     "edu.wpi.first.math.**.struct.*",
     null
   ],
-  "java.dependency.enableDependencyCheckup": false
-}
+  "java.dependency.enableDependencyCheckup": false,
+  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+  "[json]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[java]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  }
+} 
