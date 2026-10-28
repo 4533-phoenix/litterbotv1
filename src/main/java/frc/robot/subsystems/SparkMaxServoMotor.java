@@ -4,34 +4,30 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Optional;
 
 public class SparkMaxServoMotor extends ServoMotor {
   private SparkMax motor;
   private Optional<SparkAbsoluteEncoder> encoder;
 
   /** Creates a new SparkMaxServoMotor. */
-  public SparkMaxServoMotor(SparkMax motor,
-    double startingPosition,
-    boolean usingRelativeEncoder,
-    DigitalInput positiveLimit,
-    DigitalInput negativeLimit) {
+  public SparkMaxServoMotor(
+      SparkMax motor,
+      double startingPosition,
+      boolean usingRelativeEncoder,
+      DigitalInput positiveLimit,
+      DigitalInput negativeLimit) {
 
-      this.motor = motor;
-      
-      this.encoder = (usingRelativeEncoder) 
-      ? Optional.empty()
-      : Optional.of(this.motor.getAbsoluteEncoder());
+    this.motor = motor;
 
-      this.relativeEncoder = (usingRelativeEncoder)
-      ? Optional.of(this.motor.getEncoder())
-      : Optional.empty();
+    this.encoder =
+        (usingRelativeEncoder) ? Optional.empty() : Optional.of(this.motor.getAbsoluteEncoder());
+
+    this.relativeEncoder =
+        (usingRelativeEncoder) ? Optional.of(this.motor.getEncoder()) : Optional.empty();
   }
 
   @Override

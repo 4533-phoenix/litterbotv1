@@ -5,8 +5,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,14 +15,15 @@ import java.util.Optional;
  * default unit system specified by the motor controller's position conversion factor.
  */
 public abstract class ServoMotor extends SubsystemBase {
-  //protected final SparkMax motor;
-  //protected final Optional<SparkAbsoluteEncoder> encoder;
+  // protected final SparkMax motor;
+  // protected final Optional<SparkAbsoluteEncoder> encoder;
   protected Optional<RelativeEncoder> relativeEncoder = Optional.empty();
 
   protected Optional<DigitalInput> positiveLimit = Optional.empty();
   protected Optional<DigitalInput> negativeLimit = Optional.empty();
 
-  protected PIDController pid = new PIDController(0.0, 0.01, 0.0);;
+  protected PIDController pid = new PIDController(0.0, 0.01, 0.0);
+  ;
   protected boolean active = false;
 
   protected double targetPosition = 0.0;
