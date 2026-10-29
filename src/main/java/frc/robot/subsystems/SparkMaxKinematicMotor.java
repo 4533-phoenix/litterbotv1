@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.Optional;
 
@@ -14,17 +15,28 @@ public class SparkMaxKinematicMotor extends KinematicMotor {
 
   /** Creates a new SparkMaxKinematicMotor. */
   public SparkMaxKinematicMotor(
-      SparkMax motor, DigitalInput positiveLimit, DigitalInput negativeLimit) {
+      SparkMax motor,
+      DigitalInput positiveLimit,
+      DigitalInput negativeLimit,
+      double kP,
+      double kI,
+      double kD) {
     this.motor = motor;
     this.encoder = this.motor.getEncoder();
+
+    this.pid = new PIDController(kP, kI, kD);
+    this.pid.setTolerance(0.2);
 
     // Define positive and negative limits
     // The motor will not turn in the positive direction if the positive limit is active.
     // The motor will not turn in the negative direction if the negative limit is active.
-    this.positiveLimit = (positiveLimit != null) ? Optional.of(positiveLimit) : Optional.empty();
-    this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
+    this.positiveLimit = Optional.ofNullable(positiveLimit);
+    this.negativeLimit = Optional.ofNullable(negativeLimit);
+  }
 
-    this.pid.setTolerance(0.2);
+  public SparkMaxKinematicMotor(
+      SparkMax motor, DigitalInput positiveLimit, DigitalInput negativeLimit) {
+    this(motor, positiveLimit, negativeLimit, 0.02, 0.3, 0.0);
   }
 
   public SparkMaxKinematicMotor(SparkMax motor) {

@@ -22,7 +22,7 @@ public abstract class ServoMotor extends SubsystemBase {
   protected Optional<DigitalInput> positiveLimit = Optional.empty();
   protected Optional<DigitalInput> negativeLimit = Optional.empty();
 
-  protected PIDController pid = new PIDController(0.0, 0.01, 0.0);
+  protected PIDController pid = new PIDController(0.0, 0.0, 0.0);
   ;
   protected boolean active = false;
 
@@ -74,7 +74,7 @@ public abstract class ServoMotor extends SubsystemBase {
     this.negativeLimit = (negativeLimit != null) ? Optional.of(negativeLimit) : Optional.empty();
 
     // Create a PIDController; Controls how the motor ramps up to the correct speed.
-    this.pid = new PIDController(0.0, 0.01, 0.0); // TODO: tune ServoMotor PID Coefficients
+    this.pid = new PIDController(0.0, 0.01, 0.0);
     this.pid.setTolerance(0.05);
 
     this.active = false;
@@ -108,6 +108,15 @@ public abstract class ServoMotor extends SubsystemBase {
   protected abstract double getEncoderVelocity();
 
   protected abstract void setVoltage(double v);
+
+  public void activate() {
+    this.active = true;
+  }
+
+  public void deactivate() {
+    this.active = false;
+    this.pid.reset();
+  }
 
   @Override
   public void periodic() {

@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.Optional;
 
@@ -19,15 +20,49 @@ public class SparkMaxServoMotor extends ServoMotor {
       double startingPosition,
       boolean usingRelativeEncoder,
       DigitalInput positiveLimit,
-      DigitalInput negativeLimit) {
+      DigitalInput negativeLimit,
+      double kP,
+      double kI,
+      double kD) {
 
     this.motor = motor;
+
+    this.pid = new PIDController(kP, kI, kD);
+    this.pid.setTolerance(0.05);
 
     this.encoder =
         (usingRelativeEncoder) ? Optional.empty() : Optional.of(this.motor.getAbsoluteEncoder());
 
     this.relativeEncoder =
         (usingRelativeEncoder) ? Optional.of(this.motor.getEncoder()) : Optional.empty();
+
+    this.positiveLimit = Optional.ofNullable(positiveLimit);
+    this.negativeLimit = Optional.ofNullable(negativeLimit);
+  }
+
+  public SparkMaxServoMotor(
+      SparkMax motor,
+      double startingPosition,
+      boolean usingRelativeEncoder,
+      DigitalInput positiveLimit,
+      DigitalInput negativeLimit) {
+    this(
+        motor,
+        startingPosition,
+        usingRelativeEncoder,
+        positiveLimit,
+        negativeLimit,
+        0.5,
+        0.2,
+        0.01);
+  }
+
+  public SparkMaxServoMotor(SparkMax motor, double startingPosition, boolean usingRelativeEncoder) {
+    this(motor, startingPosition, usingRelativeEncoder, null, null);
+  }
+
+  public SparkMaxServoMotor(SparkMax motor, double startingPosition) {
+    this(motor, startingPosition, true, null, null);
   }
 
   @Override

@@ -26,7 +26,7 @@ public abstract class KinematicMotor extends SubsystemBase {
   protected Optional<DigitalInput> negativeLimit;
 
   // Create a PIDController; Controls how the motor ramps up to the correct speed.
-  protected PIDController pid = new PIDController(0.02, 0.3, 0.0);
+  protected PIDController pid = new PIDController(0.0, 0.0, 0.0);
   // Not active by default; Make sure to activate and deactivate when entering and exiting a teleop
   protected boolean active = false;
 
