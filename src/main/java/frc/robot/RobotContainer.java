@@ -4,18 +4,13 @@
 
 package frc.robot;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.KinematicMotorCommand;
-import frc.robot.subsystems.KinematicMotor;
-import frc.robot.subsystems.ServoMotor;
-import frc.robot.subsystems.SparkMaxKinematicMotor;
+import frc.robot.commands.ClawCommand;
+import frc.robot.subsystems.Claw;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -25,12 +20,7 @@ import frc.robot.subsystems.SparkMaxKinematicMotor;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final SparkMax motor;
-  private final DigitalInput m_limit;
-  // private final KinematicMotor m_exampleSubsystem;
-  private final ServoMotor sm;
-  public final KinematicMotor km;
-  private final Joystick m_joystick;
+  private final Claw claw;
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -38,13 +28,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    motor = new SparkMax(2, MotorType.kBrushless);
-
-    m_limit = new DigitalInput(5);
-    m_joystick = new Joystick(0);
-    sm = null;
-    km = new SparkMaxKinematicMotor(motor);
-    configureBindings();
+    claw = new Claw(60, PneumaticsModuleType.CTREPCM, 0, 1);
   }
 
   /**
@@ -79,6 +63,7 @@ public class RobotContainer {
 
   public Command getTeleopCommand() {
     // m_driverController.getLeftY()
-    return new KinematicMotorCommand(km, m_joystick.getRawAxis(1) * 15.0);
+    return new ClawCommand(
+        claw, m_driverController.a().getAsBoolean(), m_driverController.b().getAsBoolean());
   }
 }

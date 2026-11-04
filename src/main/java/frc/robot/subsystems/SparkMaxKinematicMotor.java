@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -11,7 +12,9 @@ import java.util.Optional;
 
 public class SparkMaxKinematicMotor extends KinematicMotor {
 
-  private SparkMax motor;
+  private final SparkMax motor;
+
+  private final RelativeEncoder encoder;
 
   /** Creates a new SparkMaxKinematicMotor. */
   public SparkMaxKinematicMotor(
@@ -46,5 +49,10 @@ public class SparkMaxKinematicMotor extends KinematicMotor {
   @Override
   protected void setVoltage(double v) {
     motor.setVoltage(v);
+  }
+
+  @Override
+  public double getVelocity() {
+    return this.encoder.getVelocity();
   }
 }

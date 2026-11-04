@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -42,16 +41,16 @@ public class Robot extends TimedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
-    SmartDashboard.putNumber("TargetVelocity", m_robotContainer.km.getTargetVelocity());
-    SmartDashboard.putNumber("OutputPower", m_robotContainer.km.getOutputPower());
-    SmartDashboard.putNumber("CurrentVelocity", m_robotContainer.km.getVelocity());
-    CommandScheduler.getInstance().run();
+    // SmartDashboard.putNumber("TargetVelocity", m_robotContainer.km.getTargetVelocity());
+    // SmartDashboard.putNumber("OutputPower", m_robotContainer.km.getOutputPower());
+    // SmartDashboard.putNumber("CurrentVelocity", m_robotContainer.km.getVelocity());
+    // CommandScheduler.getInstance().run();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.km.deactivate();
+    // m_robotContainer.km.deactivate();
   }
 
   @Override
@@ -81,13 +80,13 @@ public class Robot extends TimedRobot {
     /*if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }*/
-    m_robotContainer.km.activate();
+    // m_robotContainer.km.activate();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    CommandScheduler.getInstance().schedule(m_robotContainer.getTeleopCommand());
+    // CommandScheduler.getInstance().schedule(m_robotContainer.getTeleopCommand());
   }
 
   @Override

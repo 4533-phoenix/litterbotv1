@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,8 +16,6 @@ import java.util.Optional;
  */
 
 public abstract class KinematicMotor extends SubsystemBase {
-  protected RelativeEncoder encoder;
-
   // Defines positive or negative limits.
   // The motor will not move in the positive or negative direction if the
   // positive or negative limit is active.
@@ -32,10 +29,6 @@ public abstract class KinematicMotor extends SubsystemBase {
 
   protected double targetVelocity = 0.0;
   protected double outputPower = 0.0;
-
-  public double getVelocity() {
-    return encoder.getVelocity();
-  }
 
   public double getTargetVelocity() {
     return targetVelocity;
@@ -51,6 +44,8 @@ public abstract class KinematicMotor extends SubsystemBase {
 
   protected abstract void setVoltage(double v);
 
+  public abstract double getVelocity();
+
   public void activate() {
     this.active = true;
   }
@@ -65,7 +60,7 @@ public abstract class KinematicMotor extends SubsystemBase {
 
     if (active) {
       // Use the PIDController
-      double output = pid.calculate(encoder.getVelocity(), targetVelocity);
+      double output = pid.calculate(getVelocity(), targetVelocity);
 
       // Clamp output of PIDController based on which limits are active
       if (positiveLimit.isPresent() && !positiveLimit.get().get()) {
