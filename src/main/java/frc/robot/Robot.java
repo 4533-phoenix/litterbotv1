@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -44,13 +45,16 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putNumber("TargetVelocity", m_robotContainer.km.getTargetVelocity());
     // SmartDashboard.putNumber("OutputPower", m_robotContainer.km.getOutputPower());
     // SmartDashboard.putNumber("CurrentVelocity", m_robotContainer.km.getVelocity());
-    // CommandScheduler.getInstance().run();
+    CommandScheduler.getInstance().run();
+    SmartDashboard.putNumber("EncoderOutput", m_robotContainer.claw.debug_getEncoderOutput());
+    SmartDashboard.putNumber("MotorOutput", m_robotContainer.claw.debug_getMotorOutput());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
     // m_robotContainer.km.deactivate();
+    m_robotContainer.claw.deactivate();
   }
 
   @Override
@@ -81,13 +85,13 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }*/
     // m_robotContainer.km.activate();
+    m_robotContainer.claw.activate(true, false);
+    CommandScheduler.getInstance().schedule(m_robotContainer.getTeleopCommand());
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    // CommandScheduler.getInstance().schedule(m_robotContainer.getTeleopCommand());
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {

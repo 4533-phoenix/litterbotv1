@@ -28,6 +28,8 @@ public abstract class ServoMotor extends SubsystemBase {
 
   protected double targetPosition = 0.0;
   protected double outputPower = 0.0;
+  protected double powerAdjust = 0.0; // Useful for certain systems like arms, where one position
+  // requires more power than others.
 
   protected double currentPosition = 0.0;
   protected double currentEncoderPosition = 0.0;
@@ -87,16 +89,24 @@ public abstract class ServoMotor extends SubsystemBase {
     return currentPosition;
   }
 
-  public double getTargetPosition() {
-    return targetPosition;
-  }
-
   public double getOutputPower() {
     return outputPower;
   }
 
+  public double getTargetPosition() {
+    return targetPosition;
+  }
+
+  public double getPowerAdjust() {
+    return powerAdjust;
+  }
+
   public void setTargetPosition(double targetPosition) {
     this.targetPosition = targetPosition;
+  }
+
+  public void setPowerAdjust(double powerAdjust) {
+    this.powerAdjust = powerAdjust;
   }
 
   protected abstract boolean absoluteEncoderIsPresent();
