@@ -93,6 +93,13 @@ public class Claw extends SubsystemBase {
   @Override
   public void periodic() {
     if (claw_motor_active) {
+      // Add correction value to claw motor output
+
+      // Recording some data here:
+      // Arm Length = 0.3m
+      // Claw Weight = ~2 lbs
+      // Torque per volt = 0.217 J/v
+
       claw_motor.periodic();
     }
 
