@@ -98,7 +98,7 @@ public class Claw extends SubsystemBase {
       // Recording some data here:
       // Arm Length = 0.3m
       // Claw Weight = ~2 lbs
-      // Torque per volt = 0.217 J/v
+      // Torque per volt = 0.217 N * m/v
 
       claw_motor.periodic();
     }
