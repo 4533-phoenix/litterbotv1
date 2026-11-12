@@ -100,6 +100,11 @@ public class Claw extends SubsystemBase {
       // Claw Weight = ~2 lbs
       // Torque per volt = 0.217 N * m/v
 
+      // Given this, we can determine that, in order
+      // to keep the motor in equilibrium:
+      // V = 18.8 * cos(theta)
+      // where theta is the angle above the horizontal.
+
       claw_motor.periodic();
     }
 
